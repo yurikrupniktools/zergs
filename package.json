@@ -1,0 +1,111 @@
+{
+  "name": "zergs",
+  "version": "1.0.0",
+  "description": "Zergs micro services hosted on aws",
+  "main": "index.js",
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "pi": "lerna exec --stream -- npm i",
+    "start:mongo": "docker run --rm -d -p 27017:27017 --name mongo mongo",
+    "prepare:ejs": "lerna run --scope @krupnik/fe* build:client",
+    "start": "lerna run --parallel start",
+    "prebuild": "lerna exec -- rimraf dist",
+    "build": "lerna run --parallel build",
+    "lint": "lerna run --parallel lint",
+    "test": "lerna run --parallel test",
+    "deploy": "lerna publish",
+    "compose:dev:up": "docker-compose -f docker-compose.dev.yml up",
+    "compose:dev:down": "docker-compose -f docker-compose.dev.yml down",
+    "compose:prod:up": "docker-compose up",
+    "compose:prod:down": "docker-compose up",
+    "storybook": "start-storybook -p 6001",
+    "prebuild-storybook": "rimraf .storybook/dist",
+    "build-storybook": "build-storybook -o .storybook/dist",
+    "e2e:local": "lerna run --parallel e2e",
+    "e2e": "lerna run --stream e2e"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yurikrupniktools/zergs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yurikrupniktools/zergs/issues"
+  },
+  "homepage": "https://github.com/yurikrupniktools/zergs#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-react": "^7.0.0",
+    "@storybook/react": "^5.2.0",
+    "autoprefixer": "^9.6.1",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "css-hot-loader": "^1.4.4",
+    "css-loader": "^3.2.0",
+    "docdash": "^1.1.1",
+    "eslint": "^6.4.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-loader": "^3.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsdoc": "^15.9.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.3",
+    "generate-json-webpack-plugin": "^0.3.1",
+    "html-webpack-plugin": "^3.2.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^24.9.0",
+    "jest-runner-eslint": "^0.7.4",
+    "jsdoc": "^3.6.3",
+    "jsdoc-webpack-plugin-v2": "^2.0.2",
+    "lerna": "^3.16.4",
+    "less": "^3.10.3",
+    "less-loader": "^5.0.0",
+    "lodash": "^4.17.15",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.12.0",
+    "nodemon-webpack-plugin": "^4.1.1",
+    "npm-run-all": "^4.1.5",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "postcss-loader": "^3.0.0",
+    "postcss-plugin": "^1.0.0",
+    "puppeteer": "^1.20.0",
+    "raw-loader": "^3.1.0",
+    "rollup": "^1.21.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-peer-deps-external": "^2.2.0",
+    "rollup-plugin-postcss": "^2.0.3",
+    "sass": "^1.22.12",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.0",
+    "swagger-jsdoc-webpack-plugin": "^1.0.0",
+    "terser-webpack-plugin": "^2.0.1",
+    "webpack": "^4.40.2",
+    "webpack-bundle-analyzer": "^3.5.0",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.0",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "e2e"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less|scss)$": "identity-obj-proxy"
+    }
+  },
+  "postcss": {
+    "map": false,
+    "plugins": {
+      "autoprefixer": {}
+    }
+  }
+}
