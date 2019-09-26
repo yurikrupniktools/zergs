@@ -6,6 +6,7 @@
   "homepage": "https://github.com/yurikrupniktools/zergs/tree/master/packages/app#readme",
   "license": "ISC",
   "main": "dist/server.js",
+  "private": true,
   "files": [
     "dist"
   ],
