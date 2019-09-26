@@ -1,0 +1,11 @@
+{
+  "packages": [
+    "packages/*",
+    "packages/gateways/*",
+    "packages/services/*",
+    "packages/node/*",
+    "packages/webservers/*",
+    "packages/ui/*"
+  ],
+  "version": "independent"
+}

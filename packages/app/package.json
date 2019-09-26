@@ -1,0 +1,65 @@
+{
+  "name": "app",
+  "version": "2.0.0",
+  "description": "> TODO: description",
+  "author": "yurikrupnik <krupnik.yuri@gmail.com>",
+  "homepage": "https://github.com/yurikrupniktools/zergs/tree/master/packages/app#readme",
+  "license": "ISC",
+  "main": "dist/server.js",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yurikrupniktools/zergs.git"
+  },
+  "scripts": {
+    "start": "run-p start:client start:server",
+    "start:server": "webpack --config=../../webpack.config.server.js -w --color",
+    "start:client": "webpack-dev-server --config=../../webpack.config.client.js --color",
+    "prebuild": "rimraf dist",
+    "lint": "eslint src --ext .js,.jsx --color",
+    "test": "jest src --colors",
+    "build": "run-p build:client build:server",
+    "build:client": "webpack --config=../../webpack.config.client.js --env.prod --color",
+    "build:server": "webpack --config=../../webpack.config.server.js --env.prod --color",
+    "e2e": "jest e2e --colors"
+  },
+  "bugs": {
+    "url": "https://github.com/yurikrupniktools/zergs/issues"
+  },
+  "dependencies": {
+    "@krupnik/useless1": "^2.0.0",
+    "@krupnik/useless2": "^2.0.0",
+    "@material-ui/core": "^4.2.0",
+    "axios": "^0.19.0",
+    "cors": "^2.8.5",
+    "custom-react": "^3.0.1",
+    "ejs": "^2.6.1",
+    "express": "^4.17.1",
+    "express-http-proxy": "^1.6.0",
+    "formik": "^1.5.8",
+    "morgan": "^1.9.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-loadable": "^5.5.0",
+    "react-render-html": "^0.6.0",
+    "react-router": "^5.0.0",
+    "react-router-dom": "^5.0.0",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0",
+    "styled-components": "^4.4.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^9.1.4",
+    "moxios": "^0.4.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.0"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "\\.(css|less|scss)$": "identity-obj-proxy"
+    }
+  }
+}
