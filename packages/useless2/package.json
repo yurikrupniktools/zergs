@@ -7,6 +7,9 @@
   "license": "ISC",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "files": [
     "dist"
@@ -46,5 +49,5 @@
     "react-dom": "^16.9.0",
     "styled-components": "^4.4.0"
   },
-  "gitHead": "c174bedeb083553983dfb92dfc675c0ea4088734"
+  "gitHead": "0e3a74dc141d6b4035497a603b11592380d8b1a2"
 }
