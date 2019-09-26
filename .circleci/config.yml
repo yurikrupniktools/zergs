@@ -1,0 +1,362 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/area
+  docker:
+    - image: circleci/node:12
+
+docker: &docker
+  working_directory: ~/docker
+  machine:
+    docker_layer_caching: true
+
+
+only-deploy-tags: &only-deploy-tags
+  filters:
+    tags:
+      only: /^.*/
+    branches:
+#      only: master
+      ignore: /.*/
+
+
+only-deploy-tags-with-v: &only-deploy-tags-with-v
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      ignore: /.*/
+#      only: master
+
+
+jobs:
+  checkout:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/area
+      - run:
+          name: update-npm
+          command: sudo npm install -g npm@6
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: install-packages
+          command: npm run pi
+      - persist_to_workspace:
+          root: ~/area
+          paths:
+            .
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/area
+      - run:
+          name: ls
+          command: ls -a
+      - run:
+          name: eslint
+          command: npm run lint
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/area
+      - run:
+          name: test
+          command: npm run test
+
+  coverage:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: update-npm
+          command: sudo npm install -g npm@6
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: install-packages
+          command: npm run pi
+
+      - run:
+          name: test with coverage
+          command: npx jest --coverage --colors
+      - run:
+          name: Upload Coverage Results
+          command: |
+            bash <(curl -s https://codecov.io/bash) \
+              -n ${CIRCLE_BUILD_NUM} \
+              -t ${CODECOV_TOKEN} \
+              -y .codecov.yml \
+
+  deploys:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/area
+      - run:
+          name: ls -a
+          command: ls -a
+      - run:
+          name: ls packages/webservers/webserver2
+          command: ls packages/webservers/webserver2
+      - run:
+          name: ls packages/webservers/webserver2
+          command: ls packages/webservers/webserver2/dist
+      - run:
+          name: ls packages/webservers/webserver1
+          command: ls packages/webservers/webserver1/dist
+#      - run:
+#          name: lerna changed
+#          command: npx lerna changed
+
+  dc-push-all:
+    <<: *docker
+    steps:
+      - attach_workspace:
+          at: ~/docker
+      - run:
+          name: docker images
+          command: docker images
+      - run:
+          name: Echo $CIRCLE_BRANCH
+          command: echo $CIRCLE_BRANCH
+      - run:
+          name: Echo $CIRCLE_BUILD_NUM
+          command: echo $CIRCLE_BUILD_NUM
+      - run:
+          name: Echo $IMAGE_NAME
+          command: echo $IMAGE_NAME
+      - run:
+          name: Echo $CIRCLE_TAG
+          command: echo $CIRCLE_TAG
+      - run:
+          name: Echo $CIRCLE_SHA1
+          command: echo $CIRCLE_SHA1
+      - run:
+          name: Echo $CIRCLE_PR_areaNAME
+          command: echo $CIRCLE_PR_areaNAME
+      - run:
+          name: Echo $CIRCLE_PR_USERNAME
+          command: echo $CIRCLE_PR_USERNAME
+      - run:
+          name: tag service1
+          command: docker tag yurikrupnik/client-apps_service1 yurikrupnik/client-apps_service1:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push service1
+          command: docker push yurikrupnik/client-apps_service1
+      - run:
+          name: tag projects
+          command: docker tag yurikrupnik/client-apps_projects yurikrupnik/client-apps_projects:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push projects
+          command: docker push yurikrupnik/client-apps_projects
+      - run:
+          name: tag webserver1
+          command: docker tag yurikrupnik/client-apps_webserver1 yurikrupnik/client-apps_webserver1:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push webserver1
+          command: docker push yurikrupnik/client-apps_webserver1
+      - run:
+          name: tag webserver2
+          command: docker tag yurikrupnik/client-apps_webserver2 yurikrupnik/client-apps_webserver2:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push webserver2
+          command: docker push yurikrupnik/client-apps_webserver2
+      - run:
+          name: tag docs
+          command: docker tag yurikrupnik/client-apps_docs yurikrupnik/client-apps_docs:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push docs
+          command: docker push yurikrupnik/client-apps_docs
+      - run:
+          name: tag lerna
+          command: docker tag yurikrupnik/client-apps_lerna yurikrupnik/client-apps_lerna:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push lerna
+          command: docker push yurikrupnik/client-apps_lerna
+      - run:
+          name: tag gateway1
+          command: docker tag yurikrupnik/client-apps_gateway1 yurikrupnik/client-apps_gateway1:1.0.$CIRCLE_BUILD_NUM
+      - run:
+          name: push gateway1
+          command: docker push yurikrupnik/client-apps_gateway1
+
+  dc-e2e-all:
+    <<: *docker
+    steps:
+#      - attach_workspace:
+#          at: ~/docker
+      - checkout
+      - run:
+          name: docker login
+          command: docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASS
+      - run:
+          name: delete images
+          command: docker images
+#            docker images \
+#      - run:
+#          name: delete rmi
+#          command: docker rmi $(docker images -q) -f
+      - run:
+          name: build images
+          command: docker-compose build --force-rm
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install packages
+          command: npm i && npm run pi
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+
+      - run:
+          name: docker images
+          command: docker images
+      - run:
+          name: docker-compose up
+          command: docker-compose up -d
+      - run:
+          name: e2e
+          command: npm run e2e
+      - run:
+          name: docker-compose down
+          command: docker-compose down
+#      - run:
+#          name: delete images
+#          command: docker rmi $(docker images -q) -f
+#            docker images \
+#            docker rmi $(docker images -q) -f \
+#            docker images \
+
+  deploy_npm:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/area
+#      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "SO:ME:FIN:G:ER:PR:IN:T"
+      - run:
+          name: install
+          command: npm run build
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/.npmrc
+      - run:
+          name: config email
+          command: git config --global user.email "krupnik.yuri@gmail.com" /
+            && git config --global user.name "yurikrupnik"
+      - run:
+          name: publish
+          command: npx lerna publish patch --yes --no-push
+      - run:
+          name: update package-lock.json after publish
+          command: npx lerna exec -- npm install --package-lock-only --ignore-scripts --no-audit
+      - run:
+          name: git add
+          command: git add .
+      - run:
+          name: git commit
+          command: git commit -m "package-lock.json update"
+      - run:
+          name: git whoami
+          command: whoami
+      - run:
+          name: tag by npm
+          command: npm version patch
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: git push
+          command: git push origin --follow-tags
+
+  lint_test_build:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: update-npm
+          command: sudo npm install -g npm@6
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: packages install
+          command: npm run pi
+      - run:
+          name: lint
+          command: npm run lint
+      - run:
+          name: test
+          command: npm run test
+      - run:
+          name: build
+          command: npm run build
+
+workflows:
+  version: 2
+
+  build:
+    jobs:
+      - lint_test_build
+#      - deploys:
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: master
+      - coverage:
+          filters:
+            branches:
+              only: master
+
+#      - dc-e2e-all: // until deploy resolved
+#          filters:
+#            branches:
+#              only: master
+
+#          requires:
+#            - build
+
+  deploy-with-tags:
+    jobs:
+      - checkout:
+          <<: *only-deploy-tags-with-v
+      - dc-build-all:
+          <<: *only-deploy-tags-with-v
+          requires:
+            - checkout
+      - dc-e2e-all:
+          <<: *only-deploy-tags-with-v
+          requires:
+            - checkout
+      - checkout:
+          <<: *only-deploy-tags

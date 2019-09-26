@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  db:
+    image: mongo
+    ports:
+      - 27017:27017
+
+  devopment:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    container_name: devopment
+    environment:
+      - NODE_ENV_DOCKER=true
+      - DATABASE_URL=mongodb://db/service1-db
+    ports:
+      - 3000:3000
+      - 4000:4000
+      - 5000:5000
+      - 5001:5001
+      - 5002:5002
+      - 5003:5003
+      - 6002:6002
+#    todo automate volumes without passing everything
+    volumes:
+      - ./packages/docs/src:/app/packages/docs/src
+      - ./packages/webservers/webserver1/src:/app/packages/webservers/webserver1/src
+      - ./packages/webservers/webserver2/src:/app/packages/webservers/webserver2/src
+      - ./packages/services/service1/src:/app/packages/services/service1/src
+      - ./packages/services/projects/src:/app/packages/services/projects/src
+      - ./packages/ui/button/src:/app/packages/ui/button/src
+      - ./packages/ui/list/src:/app/packages/ui/list/src
+      - ./packages/gateways/gataway1/src:/app/packages/gateways/gataway1/src
+      - ./packages/node/render/src:/app/packages/node/render/src
+      - ./packages/node/express-responses/src:/app/packages/node/express-responses/src
+    command: npm run start
+    depends_on:
+      - db
+
+  storybook:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    container_name: storybook
+    ports:
+      - 6001:6001
+    volumes:
+      - ./packages:/app/packages
+    command: npm run storybook
+    depends_on:
+      - db
